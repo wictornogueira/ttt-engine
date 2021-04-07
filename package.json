@@ -1,0 +1,21 @@
+{
+  "name": "ttt-engine",
+  "version": "1.0.0",
+  "main": "dist/bundle.js",
+  "license": "MIT",
+  "module": "dist/bundle.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "bundle": "webpack",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run bundle"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3",
+    "webpack": "^5.30.0",
+    "webpack-cli": "^4.6.0"
+  },
+  "dependencies": {
+    "ts-loader": "^8.1.0"
+  }
+}
