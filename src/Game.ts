@@ -6,6 +6,7 @@ export class Game extends EventEmitter {
   players: Set<any>
   running: boolean
   turn: any
+  numOfMoves: number
 
   constructor () {
     super()
@@ -13,12 +14,13 @@ export class Game extends EventEmitter {
     this.board = new Array(9)
     this.running = false
     this.turn = null
+    this.numOfMoves = 0
   }
 
   join (player: any): void {
-    if (this.players.size < 2 && !this.players.has(player)) {
-      this.emit(Constants.Events.JOIN, player)
+    if (this.players.size < 2 && !this.players.has(player) && player !== null) {
       this.players.add(player)
+      this.emit(Constants.Events.JOIN, player)
     }
   }
 
@@ -29,6 +31,7 @@ export class Game extends EventEmitter {
 
   start (): void {
     if (!this.running && this.players.size === 2) {
+      this.numOfMoves = 0
       this.board.fill(null)
       this.running = true
       this.turn = Utils.randomItem(Array.from(this.players))
@@ -47,7 +50,8 @@ export class Game extends EventEmitter {
 
   play (player: any, cell: number): void {
     // Needs some optimization 🔥
-    if (player === this.turn && this.running && Number.isInteger(cell) && cell >= 0 && cell < 9 && this.board[cell] === null) {
+    if (this.running && player === this.turn && Number.isInteger(cell) && cell >= 0 && cell < 9 && this.board[cell] === null) {
+      this.numOfMoves++
       this.board[cell] = player
       this.emit(Constants.Events.PLAY, { player, cell })
 
@@ -60,18 +64,18 @@ export class Game extends EventEmitter {
   }
 
   getNextPlayer (currentPlayer: any = this.turn): any {
-    return Array.from(this.players).find(player => player !== currentPlayer)
+    return Array.from(this.players.values()).find(player => player !== currentPlayer)
   }
 
   check (cell: number, board: Array<any> = this.board): any {
     const hasWinner = Constants.Possibilities[cell].some(possibility => {
       for (const pos of possibility) {
-        if (this.board[pos] !== this.board[cell]) { return false }
+        if (board[pos] !== board[cell]) { return false }
       }
 
       return true
     })
 
-    return hasWinner ? this.board[cell] : !this.board.some(cell => cell === null) ? Constants.TIE : undefined
+    return hasWinner ? board[cell] : board.some(cell => cell === null) ? null : Constants.TIE
   }
 }
